@@ -5,8 +5,99 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GK_Project_3"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="450" Width="600" MinHeight="450" MinWidth="600" 
+        WindowState="Maximized" WindowStartupLocation="CenterScreen">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding PropagateErrorText}"  Grid.Column="0" Grid.Row="0" FontWeight="DemiBold" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding KAverageText}"  Grid.Column="1" Grid.Row="0" FontWeight="DemiBold" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding KPopularText}" Grid.Column="2" Grid.Row="0" FontWeight="DemiBold" TextWrapping="Wrap"/>
+            <Image Source="{Binding ImageSource}" Stretch="Fill" Grid.Row="2" Grid.Column="1" Margin="5"/>
+            <Image Source="{Binding PropagateErrorImageSource}" Grid.Row="1" Grid.Column="0" Stretch="Fill" Margin="5"/>
+            <Image Source="{Binding KAverageImageSource}" Grid.Row="1" Grid.Column="1" Stretch="Fill" Margin="5"/>
+            <Image Source="{Binding KPopularImageSource}" Grid.Row="1" Grid.Column="2" Stretch="Fill" Margin="5"/>
+        </Grid>
+        <StackPanel Grid.Column="1">
+            <GroupBox Header="Obrazek">
+                <Button Content="Wybierz obrazek" Command="{Binding ChooseImageCommand}"/>
+            </GroupBox>
+            <GroupBox Header="Propagacja błędów">
+                <StackPanel>
+                    <GroupBox Header="Kanały">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="R" Grid.Row="0" Grid.Column="0"/>
+                            <TextBox Text="{Binding RValue}" Grid.Row="0" Grid.Column="1"
+                                     PreviewTextInput="PreviewTextBoxInput"
+                                     DataObject.Pasting="TextBoxPasting"/>
+                            <Label Content="G" Grid.Row="1" Grid.Column="0"/>
+                            <TextBox Text="{Binding GValue}" Grid.Row="1" Grid.Column="1"
+                                     PreviewTextInput="PreviewTextBoxInput"
+                                     DataObject.Pasting="TextBoxPasting"/>
+                            <Label Content="B" Grid.Row="2" Grid.Column="0"/>
+                            <TextBox Text="{Binding BValue}" Grid.Row="2" Grid.Column="1"
+                                     PreviewTextInput="PreviewTextBoxInput"
+                                     DataObject.Pasting="TextBoxPasting"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox Header="Filtry">
+                        <StackPanel>
+                            <RadioButton Content="Floyd&amp;Steinberg" IsChecked="{Binding FloydSteinberg}" 
+                                         GroupName="FilterGroup"/>
+                            <RadioButton Content="Burkes" IsChecked="{Binding Burkes}" GroupName="FilterGroup"/>
+                            <RadioButton Content="Stucky" IsChecked="{Binding Stucky}" GroupName="FilterGroup"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <Button Content="Generuj" Command="{Binding GenerateCommand}" CommandParameter="0"/>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="K-Średnich">
+                <StackPanel>
+                    <DockPanel HorizontalAlignment="Stretch">
+                        <Label Content="Liczba K"/>
+                        <TextBox Text="{Binding KAverageValue}"
+                                     PreviewTextInput="PreviewTextBoxInput"
+                                     DataObject.Pasting="TextBoxPasting"/>
+                    </DockPanel>
+                    <Button Content="Generuj" Command="{Binding GenerateCommand}" CommandParameter="1"/>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Popularnościowy">
+                <StackPanel>
+                    <DockPanel HorizontalAlignment="Stretch">
+                        <Label Content="Liczba K"/>
+                        <TextBox Text="{Binding KPopularValue}"
+                                     PreviewTextInput="PreviewTextBoxInput"
+                                     DataObject.Pasting="TextBoxPasting"/>
+                    </DockPanel>
+                    <Button Content="Generuj" Command="{Binding GenerateCommand}" CommandParameter="2"/>
+                </StackPanel>
+            </GroupBox>
+            <WrapPanel>
+                <Label Content="{Binding LabelText}" FontSize="20" FontWeight="Bold"/>
+            </WrapPanel>
+        </StackPanel>
     </Grid>
 </Window>
