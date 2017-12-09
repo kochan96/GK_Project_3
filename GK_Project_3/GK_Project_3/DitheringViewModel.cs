@@ -336,8 +336,8 @@ namespace GK_Project_3
         #region KPopular
         private async void KPopularMethod(object parameter)
         {
-            try
-            {
+            //try
+            //{
                 KPopularRunning = true;
                 OnPropertyChanged(nameof(KPopularRunning));
                 byte[] source = ImageSource.ToByteArray();
@@ -350,11 +350,11 @@ namespace GK_Project_3
                 KPopularImageSource = KPopularImageSource.FromByteArray(result);
                 KPopularText = "Algorytm popularnościowy (" + KPopularTimeText + ")"; ;
                 OnPropertyChanged(nameof(KPopularText));
-            }
-            catch (Exception ex)
-            {
-                AlgorithmErrorMessage(ex.Message);
-            }
+            //}
+            //catch (Exception ex)
+            // {
+            //    AlgorithmErrorMessage(ex.Message);
+           // }
             KPopularTimeText = String.Empty;
             OnPropertyChanged(nameof(KPopularTimeText));
             KPopularTimer.Stop();

@@ -5,18 +5,17 @@ using System.Windows.Media;
 
 namespace GK_Project_3
 {
+    public class Node
+    {
+        public int counter;
+        public Color Value;
+        public Color NewColor;
+        public Node[] next = new Node[8];
+    }
     public class RSTColorTree
     {
         int maxb = 8;
         private Node root;
-
-        public class Node
-        {
-            public int counter;
-            public Color Value;
-            public Color NewColor;
-            public Node[] next=new Node[8];
-        }
 
         public Color GetNewColor(Color oldColor)
         {
@@ -68,6 +67,29 @@ namespace GK_Project_3
             return p;
         }
 
+        public Node Insert(Color value)
+        {
+            int branch = 0;
+            Node p = Search(value, out branch);
+            if (p == null)
+            {
+                root = new Node() { Value = value, counter = 1 };
+                return root;
+            }
+            if (branch < 0)
+            {
+                p.counter++;
+                return p;
+            }
+            if (branch >= 0 && p.next[branch] != null)
+            {
+                p.next[branch].counter++;
+                return p.next[branch];
+            }
+
+            p.next[branch] = new Node() { Value = value, counter = 1 };
+            return p.next[branch];
+        }
         public Node Insert(Color value, Color newColor)
         {
             int branch = 0;

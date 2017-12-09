@@ -45,17 +45,18 @@ namespace GK_Project_3
                     for (int j = 0; j < width; j++)
                     {
                         Color color = source.GetPixelFromByteArray(j, i, width);
-                        double minDist = GetDistanceBeetweenColors(color, means[0]);
+                        double minDist = color.GetDistanceBeetweenColors(means[0]);
                         int minIndex = 0;
                         for (int c = 1; c < k; c++)
                         {
-                            int dist = GetDistanceBeetweenColors(color, means[c]);
+                            double dist = color.GetDistanceBeetweenColors(means[c]);
                             if (dist < minDist)
                             {
                                 minDist = dist;
                                 minIndex = c;
                             }
                         }
+
                         tree.Insert(color, means[minIndex]);
                         nextMeans[minIndex, 0] += color.A;
                         nextMeans[minIndex, 1] += color.R;
@@ -97,13 +98,7 @@ namespace GK_Project_3
         }
 
 
-        private static int GetDistanceBeetweenColors(Color color1, Color color2)
-        {
-
-
-            return (color1.A - color2.A) * (color1.A - color2.A) + (color1.R - color2.R) * (color1.R - color2.R) + (color1.G - color2.G) * (color1.G - color2.G) * (color1.B - color2.B) * (color1.B - color2.B); 
-
-        }
+        
         private static Color GetRandomColor()
         {
             return Color.FromArgb((byte)rnd.Next(255), (byte)rnd.Next(255), (byte)rnd.Next(255), (byte)rnd.Next(255));

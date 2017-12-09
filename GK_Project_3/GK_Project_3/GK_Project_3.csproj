@@ -63,7 +63,7 @@
     <Compile Include="InverseBoolVisibilityConverter.cs" />
     <Compile Include="KAverage.cs" />
     <Compile Include="KPopular.cs" />
-    <Compile Include="PatriciaColorTree.cs" />
+    <Compile Include="RSTColorTree.cs" />
     <Compile Include="PropagateError.cs" />
     <Compile Include="RelayCommand.cs" />
     <Page Include="MainWindow.xaml">
