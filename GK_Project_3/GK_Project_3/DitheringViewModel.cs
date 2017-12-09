@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace GK_Project_3
 {
@@ -166,12 +167,22 @@ namespace GK_Project_3
         public bool Burkes { get; set; }
 
         public bool Stucky { get; set; }
+
+        public bool PropagateErrorRunning { get; private set;  }
+        public bool KAverageRunning { get; private set; }
+        public bool KPopularRunning { get; private set; }
         #endregion
 
-        public RelayCommand GenerateCommand { get; }
+        public RelayCommand GeneratePropagateError { get; }
+        public RelayCommand GenerateKAverage { get; }
+        public RelayCommand GenerateKPopular { get; }
 
         public RelayCommand ChooseImageCommand { get; }
 
+        bool IsAnyRunning()
+        {
+            return PropagateErrorRunning || KAverageRunning || KPopularRunning;
+        }
         public DitheringViewModel()
         {
             TryGetBitmap();
@@ -182,15 +193,30 @@ namespace GK_Project_3
             KAverageValue = 4;
             KPopularValue = 4;
 
-            GenerateCommand = new RelayCommand(x => GenerateMethod(x), x => ImageSource != null);
-            ChooseImageCommand = new RelayCommand(x => ChooseImage(x));
+            GeneratePropagateError = new RelayCommand(x => PropagateErrorMethod(x), x => ImageSource != null && PropagateErrorRunning == false);
+            GenerateKAverage = new RelayCommand(x => KAverageMethod(x), x => ImageSource != null && KAverageRunning == false);
+            GenerateKPopular = new RelayCommand(x => KPopularMethod(x), x => ImageSource != null && KPopularRunning == false);
+            ChooseImageCommand = new RelayCommand(x => ChooseImage(x),x=>IsAnyRunning()==false);
 
             if (ImageSource != null)
             {
-                PropagateErrorMethod();
-                KAverageMethod();
-                KPopularMethod();
+                /* PropagateErrorMethod();
+                 KAverageMethod();
+                 KPopularMethod();*/
             }
+
+            ///Timers
+            ///
+            PropagateErrorTimer = new DispatcherTimer(new TimeSpan(0, 0, 1), DispatcherPriority.Background, PropagateErrorTimer_Tick, Dispatcher.CurrentDispatcher);
+            PropagateErrorTimer.Stop();
+            KAverageTimer= new DispatcherTimer(new TimeSpan(0, 0, 1), DispatcherPriority.Background, KAverageTimer_Tick, Dispatcher.CurrentDispatcher);
+            KAverageTimer.Stop();
+            KPopularTimer =new DispatcherTimer(new TimeSpan(0, 0, 1), DispatcherPriority.Background, KPopularTimer_Tick, Dispatcher.CurrentDispatcher);
+            KPopularTimer.Stop();
+            PropagateErrorTimeText = String.Empty;
+            KPopularTimeText = String.Empty;
+            KAverageTimeText = String.Empty;
+            ////
         }
 
         void TryGetBitmap()
@@ -222,96 +248,156 @@ namespace GK_Project_3
                 }
             }
         }
-
-
-        void GenerateMethod(object parameter)
-        {
-            switch (parameter)
-            {
-                case "0":
-                    PropagateErrorMethod();
-                    break;
-
-                case "1":
-                    KAverageMethod();
-                    break;
-                case "2":
-                    KPopularMethod();
-                    break;
-                default:
-                    PropagateErrorMethod();
-                    break;
-            }
-        }
-
-        private async void PropagateErrorMethod()
+        
+        #region Propagate Error
+        private async void PropagateErrorMethod(object parameter)
         {
             try
             {
+                PropagateErrorRunning = true;
+                OnPropertyChanged(nameof(PropagateErrorRunning));
+                byte[] source = ImageSource.ToByteArray();
+                int width = PropagateErrorImageSource.PixelWidth;
+                int height = PropagateErrorImageSource.PixelHeight;
+                startPropagateError = DateTime.Now;
+                PropagateErrorTimer.Start();
                 if (FloydSteinberg)
                 {
-                    byte[] source = ImageSource.ToByteArray();
-                    int width = PropagateErrorImageSource.PixelWidth;
-                    int height = PropagateErrorImageSource.PixelHeight;
-                    byte[] result = await PropagateError.GetDitheredBitmapByteArrayAsync(source, width, height, RValue, GValue, BValue);
+                    byte[] result = await PropagateError.GetDitheredBitmapFloydSteinbergAsync(source, width, height, RValue, GValue, BValue);
                     PropagateErrorImageSource = PropagateErrorImageSource.FromByteArray(result);
                     PropagateErrorText = "Algorytm Propagacji błedów (FloydSteinberg)";
                 }
                 else if (Stucky)
                 {
-                    byte[] result = PropagateError.GetDitheredBitmapStucky(ImageSource, RValue, GValue, BValue);
+                    byte[] result = await PropagateError.GetDitheredBitmapStuckyAsync(source, width, height, RValue, GValue, BValue);
                     PropagateErrorImageSource = PropagateErrorImageSource.FromByteArray(result);
                     PropagateErrorText = "Algorytm Propagacji błedów (Stucky)";
 
                 }
                 else if (Burkes)
                 {
-                    byte[] result = PropagateError.GetDitheredBitmapBurkes(ImageSource, RValue, GValue, BValue);
+                    byte[] result = await PropagateError.GetDitheredBitmapBurkesAsync(source, width, height, RValue, GValue, BValue);
                     PropagateErrorImageSource = PropagateErrorImageSource.FromByteArray(result);
                     PropagateErrorText = "Algorytm Propagacji błedów (Burkes)";
                 }
+                PropagateErrorText = PropagateErrorText + ": " + PropagateErrorTimeText;
                 OnPropertyChanged(nameof(PropagateErrorText));
             }
             catch (Exception ex)
             {
                 AlgorithmErrorMessage(ex.Message);
             }
+            PropagateErrorTimeText = String.Empty;
+            OnPropertyChanged(nameof(PropagateErrorTimeText));
+            PropagateErrorTimer.Stop();
+            PropagateErrorRunning = false;
+            //Refresh
+            OnPropertyChanged(nameof(PropagateErrorRunning));
+            GeneratePropagateError.RaiseCanExecuteChanged();
         }
 
+        #endregion
 
-        private void KAverageMethod()
+        #region KAverage
+
+        private async void KAverageMethod(object parameter)
         {
+            
             try
             {
-                byte[] result = KAverage.GetDitheredBitmapKAverage(ImageSource, KAverageValue);
+                KAverageRunning = true;
+                OnPropertyChanged(nameof(KAverageRunning));
+                byte[] source = ImageSource.ToByteArray();
+                int width = ImageSource.PixelWidth;
+                int height = ImageSource.PixelHeight;
+                startKAverage = DateTime.Now;
+                KAverageTimer.Start();
+
+                byte[] result = await KAverage.GetReducedBitmapKAverageAsync(source, width, height, KAverageValue);
                 KAverageImageSource = KAverageImageSource.FromByteArray(result);
-                KAverageText = "Algorytm K-średnich";
+                KAverageText = "Algorytm K-średnich ("+KAverageTimeText+")";
                 OnPropertyChanged(nameof(KAverageText));
             }
             catch (Exception ex)
             {
                 AlgorithmErrorMessage(ex.Message);
             }
+            KAverageTimeText = String.Empty;
+            OnPropertyChanged(nameof(KAverageTimeText));
+            KAverageTimer.Stop();
+            KAverageRunning = false;
+            //Refresh
+            OnPropertyChanged(nameof(KAverageRunning));
+            GenerateKAverage.RaiseCanExecuteChanged();
         }
 
-        private void KPopularMethod()
+        #endregion
+
+        #region KPopular
+        private async void KPopularMethod(object parameter)
         {
             try
             {
-                byte[] result = KPopular.GetDitheredBitmapKPopular(ImageSource, KPopularValue);
+                KPopularRunning = true;
+                OnPropertyChanged(nameof(KPopularRunning));
+                byte[] source = ImageSource.ToByteArray();
+                int width = ImageSource.PixelWidth;
+                int height = ImageSource.PixelHeight;
+                startKPopular = DateTime.Now;
+                KPopularTimer.Start();
+
+                byte[] result = await KPopular.GetReducedBitmapKPopularAsync(source,width,height, KPopularValue);
                 KPopularImageSource = KPopularImageSource.FromByteArray(result);
-                KPopularText = "Algorytm popularnościowy";
+                KPopularText = "Algorytm popularnościowy (" + KPopularTimeText + ")"; ;
                 OnPropertyChanged(nameof(KPopularText));
             }
             catch (Exception ex)
             {
                 AlgorithmErrorMessage(ex.Message);
             }
+            KPopularTimeText = String.Empty;
+            OnPropertyChanged(nameof(KPopularTimeText));
+            KPopularTimer.Stop();
+            KPopularRunning = false;
+            //Refresh
+            OnPropertyChanged(nameof(KPopularRunning));
+            GenerateKPopular.RaiseCanExecuteChanged();
         }
+
+        #endregion
 
         void AlgorithmErrorMessage(string message)
         {
             MessageBox.Show(String.Format("Wystąpił problem podczas algorytmu: {0} ,{1}", Environment.NewLine, message));
         }
+
+        #region Timers
+        public string KAverageTimeText { get; set; }
+        DateTime startKAverage;
+        DispatcherTimer KAverageTimer;
+        void KAverageTimer_Tick(object sender,EventArgs e)
+        {
+            KAverageTimeText = (DateTime.Now - startKAverage).ToString(@"dd\.hh\:mm\:ss");
+            OnPropertyChanged(nameof(KAverageTimeText));
+        }
+
+        public string KPopularTimeText { get; set; }
+        DateTime startKPopular;
+        DispatcherTimer KPopularTimer;
+        void KPopularTimer_Tick(object sender, EventArgs e)
+        {
+            KPopularTimeText = (DateTime.Now - startKPopular).ToString(@"dd\.hh\:mm\:ss");
+            OnPropertyChanged(nameof(KPopularTimeText));
+        }
+
+        public string PropagateErrorTimeText { get; set; }
+        DateTime startPropagateError;
+        DispatcherTimer PropagateErrorTimer;
+        void PropagateErrorTimer_Tick(object sender, EventArgs e)
+        {
+            PropagateErrorTimeText = (DateTime.Now - startPropagateError).ToString(@"dd\.hh\:mm\:ss");
+            OnPropertyChanged(nameof(PropagateErrorTimeText));
+        }
+        #endregion
     }
 }

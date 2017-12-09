@@ -9,11 +9,18 @@ namespace GK_Project_3
 {
     public static class KPopular
     {
-
-        public static byte[] GetDitheredBitmapKPopular(WriteableBitmap sourceBitmap,int k)
+        public static Task<byte[]> GetReducedBitmapKPopularAsync(byte[] source,int width,int height,int k)
         {
+            return Task.Run(() => GetReducedBitmapKPopular(source, width, height, k));
+        }
+        private static byte[] GetReducedBitmapKPopular(byte[] source,int width,int height,int k)
+        {
+            if (source == null)
+                throw new Exception("Source Bitmap is null");
 
-            throw new NotImplementedException("Do zrobienia");
+
+
+            return source;
         }
     }
 }

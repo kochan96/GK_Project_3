@@ -12,13 +12,23 @@ namespace GK_Project_3
     public static class PropagateError
     {
 
-        public  async static  Task<byte[]> GetDitheredBitmapFloydSteinbergAsync(byte[] source,int width,int height,byte RMax,byte GMax,byte BMax)
+        public static Task<byte[]> GetDitheredBitmapFloydSteinbergAsync(byte[] source, int width, int height, byte RMax, byte GMax, byte BMax)
         {
-            return await GetDitheredBitmapFloydSteinberg(source, width, height, RMax, GMax, BMax);
+            return Task.Run(() => GetDitheredBitmapFloydSteinberg(source, width, height, RMax, GMax, BMax));
+        }
+
+        public static Task<byte[]> GetDitheredBitmapBurkesAsync(byte[] source, int width, int height, byte RMax, byte GMax, byte BMax)
+        {
+            return Task.Run(()=>GetDitheredBitmapBurkes(source, width, height, RMax, GMax, BMax));
+        }
+
+        public static Task<byte[]> GetDitheredBitmapStuckyAsync(byte[] source, int width, int height, byte RMax, byte GMax, byte BMax)
+        {
+            return Task.Run(() => GetDitheredBitmapStucky(source, width, height, RMax, GMax, BMax));
         }
 
         #region FloydSteinberg
-        private async static Task<byte[]> GetDitheredBitmapFloydSteinberg(byte[] source,int width,int height, byte RMax, byte GMax, byte BMax)
+        private static byte[] GetDitheredBitmapFloydSteinberg(byte[] source, int width, int height, byte RMax, byte GMax, byte BMax)
         {
             if (source == null)
                 throw new Exception("Source Bitmap Bitmap is null");
@@ -66,70 +76,14 @@ namespace GK_Project_3
 
             return source;
         }
-        public static byte[] GetDitheredBitmapFloydSteinberg(WriteableBitmap sourceBitmap, byte RMax, byte GMax, byte BMax)
-        {
-            if (sourceBitmap == null)
-                throw new Exception("Source Bitmap Bitmap is null");
-
-            int width = sourceBitmap.PixelWidth;
-            int height = sourceBitmap.PixelHeight;
-            byte[] source = sourceBitmap.ToByteArray();
-
-            for (int i = 0; i < height; i++)
-            {
-                for (int j = 0; j < width; j++)
-                {
-                    Color oldcolor = source.GetPixelFromByteArray(j, i, width);
-                    Color newcolor = GetNewClampedColor(oldcolor, RMax, GMax, BMax);
-                    source.SetPixelInByteArray(j, i, width, newcolor);
-                    Color error = newcolor - oldcolor;
-
-                    //apply FloydSteinberg to other pixel
-                    if (j + 1 < width)
-                    {
-                        oldcolor = source.GetPixelFromByteArray(j + 1, i, width);
-                        newcolor = oldcolor + error * (7 / 16);
-                        source.SetPixelInByteArray(j + 1, i, width, newcolor);
-                    }
-                    if (i + 1 < height)
-                    {
-                        if (j - 1 >= 0)
-                        {
-
-                            oldcolor = source.GetPixelFromByteArray(j - 1, i + 1, width);
-                            newcolor = oldcolor + error * (3 / 16);
-                            source.SetPixelInByteArray(j - 1, i + 1, width, newcolor);
-                        }
-                        //j,i+1
-                        oldcolor = source.GetPixelFromByteArray(j, i + 1, width);
-                        newcolor = oldcolor + error * (5 / 16);
-                        source.SetPixelInByteArray(j, i + 1, width, newcolor);
-
-                        if (j + 1 < width)
-                        {
-                            oldcolor = source.GetPixelFromByteArray(j+1, i + 1, width);
-                            newcolor = oldcolor + error * (1 / 16);
-                            source.SetPixelInByteArray(j + 1, i + 1, width, newcolor);
-                        }
-                    }
-                }
-            }
-
-            return source;
-        }
-
         #endregion
 
         #region Burkes
-        public static byte[] GetDitheredBitmapBurkes(WriteableBitmap sourceBitmap, byte RMax, byte GMax, byte BMax)
+        private static byte[] GetDitheredBitmapBurkes(byte[] source, int width, int height, byte RMax, byte GMax, byte BMax)
         {
-            if (sourceBitmap == null)
+            if (source == null)
                 throw new Exception("Source Bitmap Bitmap is null");
 
-            byte[] source = sourceBitmap.ToByteArray();
-
-            int width = sourceBitmap.PixelWidth;
-            int height = sourceBitmap.PixelHeight;
 
             for (int i = 0; i < height; i++)
             {
@@ -203,15 +157,10 @@ namespace GK_Project_3
         #endregion
 
         #region Stucky
-        public static byte[] GetDitheredBitmapStucky(WriteableBitmap sourceBitmap, byte RMax, byte GMax, byte BMax)
+        private static byte[] GetDitheredBitmapStucky(byte[] source, int width, int height, byte RMax, byte GMax, byte BMax)
         {
-            if (sourceBitmap == null)
+            if (source == null)
                 throw new Exception("Source Bitmap Bitmap is null");
-
-            byte[] source = sourceBitmap.ToByteArray();
-
-            int width = sourceBitmap.PixelWidth;
-            int height = sourceBitmap.PixelHeight;
 
             for (int i = 0; i < height; i++)
             {

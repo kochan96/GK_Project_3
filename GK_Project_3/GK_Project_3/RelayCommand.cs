@@ -14,6 +14,11 @@ namespace GK_Project_3
             remove { CommandManager.RequerySuggested -= value; }
         }
 
+        public void RaiseCanExecuteChanged()
+        {
+            CommandManager.InvalidateRequerySuggested();
+        }
+
         public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
         {
             this.execute = execute;

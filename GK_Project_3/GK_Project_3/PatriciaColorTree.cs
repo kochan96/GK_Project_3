@@ -10,8 +10,9 @@ namespace GK_Project_3
         int maxb = 8;
         private Node root;
 
-        private class Node
+        public class Node
         {
+            public int counter;
             public Color Value;
             public Color NewColor;
             public Node[] next=new Node[8];
@@ -67,26 +68,29 @@ namespace GK_Project_3
             return p;
         }
 
-        public void Insert(Color value, Color newColor)
+        public Node Insert(Color value, Color newColor)
         {
             int branch = 0;
             Node p = Search(value, out branch);
             if(p==null)
             {
-                root = new Node() { Value = value, NewColor = newColor };
-                return;
+                root = new Node() { Value = value, NewColor = newColor,counter=1};
+                return root;
             }
             if(branch<0)
             {
                 p.NewColor = newColor;
-                return;
+                p.counter++;
+                return p;
             }
             if( branch>=0 && p.next[branch]!=null)
             {
                 p.next[branch].NewColor = newColor;
-                return;
+                p.next[branch].counter++;
+                return p.next[branch];
             }
-            p.next[branch] = new Node() { Value = value, NewColor = newColor };
+            p.next[branch] = new Node() { Value = value, NewColor = newColor ,counter=1};
+            return p.next[branch];
         }
     }
 }

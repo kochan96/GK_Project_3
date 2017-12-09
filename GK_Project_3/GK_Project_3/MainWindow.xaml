@@ -7,6 +7,10 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="600" MinHeight="450" MinWidth="600" 
         WindowState="Maximized" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <local:BoolVisibilityConverter x:Key="BoolVisibilityConverter"/>
+        <local:InverseBoolVisibilityConverter x:Key="InverseBoolVisibilityConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="4*"/>
@@ -23,13 +27,37 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+
+
             <TextBlock Text="{Binding PropagateErrorText}"  Grid.Column="0" Grid.Row="0" FontWeight="DemiBold" TextWrapping="Wrap"/>
+            <Image Source="{Binding PropagateErrorImageSource}" Grid.Row="1" Grid.Column="0" Stretch="Fill" Margin="5"
+                   Visibility="{Binding PropagateErrorRunning,Mode=OneWay,Converter={StaticResource InverseBoolVisibilityConverter}}"/>
+            <StackPanel Grid.Row="1" Grid.Column="0" VerticalAlignment="Center"
+                        Visibility="{Binding PropagateErrorRunning,Mode=OneWay,Converter={StaticResource BoolVisibilityConverter}}">
+                <ProgressBar IsIndeterminate="True"   Height="100"/>
+                <TextBlock Text="{Binding Path=PropagateErrorTimeText,StringFormat=Trwa Generowanie {0}}"/>
+            </StackPanel>
+
             <TextBlock Text="{Binding KAverageText}"  Grid.Column="1" Grid.Row="0" FontWeight="DemiBold" TextWrapping="Wrap"/>
+            <Image Source="{Binding KAverageImageSource}" Grid.Row="1" Grid.Column="1" Stretch="Fill" Margin="5"
+                   Visibility="{Binding KAverageRunning,Mode=OneWay,Converter={StaticResource InverseBoolVisibilityConverter}}"/>
+            <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Center"
+                        Visibility="{Binding KAverageRunning,Mode=OneWay,Converter={StaticResource BoolVisibilityConverter}}">
+                <ProgressBar IsIndeterminate="True"  Height="100"/>
+                <TextBlock Text="{Binding Path=KAverageTimeText,StringFormat=Trwa Generowanie {0}}"/>
+            </StackPanel>
+
+
             <TextBlock Text="{Binding KPopularText}" Grid.Column="2" Grid.Row="0" FontWeight="DemiBold" TextWrapping="Wrap"/>
+            <Image Source="{Binding KPopularImageSource}" Grid.Row="1" Grid.Column="2" Stretch="Fill" Margin="5"
+                   Visibility="{Binding KPopularRunning,Mode=OneWay,Converter={StaticResource InverseBoolVisibilityConverter}}"/>
+            <StackPanel Grid.Row="1" Grid.Column="2" VerticalAlignment="Center"
+                        Visibility="{Binding KPopularRunning,Mode=OneWay,Converter={StaticResource BoolVisibilityConverter}}">
+                <ProgressBar IsIndeterminate="True"   Height="100"/>
+                <TextBlock Text="{Binding Path=KPopularTimeText,StringFormat=Trwa Generowanie {0}}"/>
+            </StackPanel>
+
             <Image Source="{Binding ImageSource}" Stretch="Fill" Grid.Row="2" Grid.Column="1" Margin="5"/>
-            <Image Source="{Binding PropagateErrorImageSource}" Grid.Row="1" Grid.Column="0" Stretch="Fill" Margin="5"/>
-            <Image Source="{Binding KAverageImageSource}" Grid.Row="1" Grid.Column="1" Stretch="Fill" Margin="5"/>
-            <Image Source="{Binding KPopularImageSource}" Grid.Row="1" Grid.Column="2" Stretch="Fill" Margin="5"/>
         </Grid>
         <StackPanel Grid.Column="1">
             <GroupBox Header="Obrazek">
@@ -70,7 +98,7 @@
                             <RadioButton Content="Stucky" IsChecked="{Binding Stucky}" GroupName="FilterGroup"/>
                         </StackPanel>
                     </GroupBox>
-                    <Button Content="Generuj" Command="{Binding GenerateCommand}" CommandParameter="0"/>
+                    <Button Content="Generuj" Command="{Binding GeneratePropagateError}"/>
                 </StackPanel>
             </GroupBox>
             <GroupBox Header="K-Średnich">
@@ -81,7 +109,7 @@
                                      PreviewTextInput="PreviewTextBoxInput"
                                      DataObject.Pasting="TextBoxPasting"/>
                     </DockPanel>
-                    <Button Content="Generuj" Command="{Binding GenerateCommand}" CommandParameter="1"/>
+                    <Button Content="Generuj" Command="{Binding GenerateKAverage}"/>
                 </StackPanel>
             </GroupBox>
             <GroupBox Header="Popularnościowy">
@@ -92,7 +120,7 @@
                                      PreviewTextInput="PreviewTextBoxInput"
                                      DataObject.Pasting="TextBoxPasting"/>
                     </DockPanel>
-                    <Button Content="Generuj" Command="{Binding GenerateCommand}" CommandParameter="2"/>
+                    <Button Content="Generuj" Command="{Binding GenerateKPopular}"/>
                 </StackPanel>
             </GroupBox>
             <WrapPanel>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -7,19 +8,22 @@ namespace GK_Project_3
 {
     public static class KAverage
     {
-        static Random rnd = new Random();
-        public static byte[] GetDitheredBitmapKAverage(WriteableBitmap sourceBitmap, int k)
+
+        public static Task<byte[]> GetReducedBitmapKAverageAsync(byte[] source,int width,int height,int k)
         {
-            System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
-            stopWatch.Start();
+            return Task.Run(() => GetReducedBitmapKAverage(source, width, height, k));
+        }
+        static Random rnd = new Random();
+        private static byte[] GetReducedBitmapKAverage(byte[] source,int width,int height, int k)
+        {
+            if (source == null)
+                throw new Exception("Source Bitmap is null");
+            
 
             if (k <= 0)
                 throw new Exception("K  musi być większe od 0");
 
-            byte[] source = sourceBitmap.ToByteArray();
-
-            int width = sourceBitmap.PixelWidth;
-            int height = sourceBitmap.PixelHeight;
+           
 
             Color[] means = new Color[k];
             double[,] nextMeans = new double[k,5];
@@ -33,7 +37,7 @@ namespace GK_Project_3
             }
             bool changed = true;
             int iterationCount = 0;
-            while (changed && iterationCount<1e10)
+            while (changed && iterationCount<1e4) //if iteration bugger than 10000 stop
             {
                 changed = false;
                 for (int i = 0; i < height; i++)
@@ -85,11 +89,9 @@ namespace GK_Project_3
                 for(int j=0;j<width;j++)
                 {
                     Color c = source.GetPixelFromByteArray(j, i, width);
-                    source.SetPixelInByteArray(j, i, width, tree.GetNewColor(c));
+                    source.SetPixelInByteArray(j, i, width, tree.GetNewColor(c));//fill source with new colors
                 }
             }
-            stopWatch.Stop();
-            MessageBox.Show(stopWatch.Elapsed.ToString());
 
             return source;
         }

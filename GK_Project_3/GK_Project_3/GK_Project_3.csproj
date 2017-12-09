@@ -58,7 +58,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BoolVisibilityConverter.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="InverseBoolVisibilityConverter.cs" />
     <Compile Include="KAverage.cs" />
     <Compile Include="KPopular.cs" />
     <Compile Include="PatriciaColorTree.cs" />
