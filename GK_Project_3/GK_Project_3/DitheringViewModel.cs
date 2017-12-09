@@ -158,7 +158,7 @@ namespace GK_Project_3
 
         public string KAverageText { get; set; }
 
-        public string KPopularText{get;set;}
+        public string KPopularText { get; set; }
 
 
         public bool FloydSteinberg { get; set; }
@@ -182,10 +182,10 @@ namespace GK_Project_3
             KAverageValue = 4;
             KPopularValue = 4;
 
-            GenerateCommand = new RelayCommand(x => GenerateMethod(x),x=>ImageSource!=null);
+            GenerateCommand = new RelayCommand(x => GenerateMethod(x), x => ImageSource != null);
             ChooseImageCommand = new RelayCommand(x => ChooseImage(x));
 
-            if(ImageSource!=null)
+            if (ImageSource != null)
             {
                 PropagateErrorMethod();
                 KAverageMethod();
@@ -209,13 +209,14 @@ namespace GK_Project_3
         {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png";
-            if(ofd.ShowDialog()==true)
+            if (ofd.ShowDialog() == true)
             {
                 try
                 {
                     BitmapSource source = new BitmapImage(new Uri(ofd.FileName));
                     ImageSource = new WriteableBitmap(source);
-                }catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     MessageBox.Show(String.Format("Nie udało się dodać obrazka {0} {1}", Environment.NewLine, ex.Message));
                 }
@@ -223,12 +224,12 @@ namespace GK_Project_3
         }
 
 
-         void GenerateMethod(object parameter)
+        void GenerateMethod(object parameter)
         {
             switch (parameter)
             {
                 case "0":
-                     PropagateErrorMethod();
+                    PropagateErrorMethod();
                     break;
 
                 case "1":
@@ -243,13 +244,16 @@ namespace GK_Project_3
             }
         }
 
-        private  void  PropagateErrorMethod()
+        private async void PropagateErrorMethod()
         {
             try
             {
                 if (FloydSteinberg)
                 {
-                    byte[] result = PropagateError.GetDitheredBitmapFloydSteinberg(ImageSource, RValue, GValue, BValue);
+                    byte[] source = ImageSource.ToByteArray();
+                    int width = PropagateErrorImageSource.PixelWidth;
+                    int height = PropagateErrorImageSource.PixelHeight;
+                    byte[] result = await PropagateError.GetDitheredBitmapByteArrayAsync(source, width, height, RValue, GValue, BValue);
                     PropagateErrorImageSource = PropagateErrorImageSource.FromByteArray(result);
                     PropagateErrorText = "Algorytm Propagacji błedów (FloydSteinberg)";
                 }
@@ -267,9 +271,10 @@ namespace GK_Project_3
                     PropagateErrorText = "Algorytm Propagacji błedów (Burkes)";
                 }
                 OnPropertyChanged(nameof(PropagateErrorText));
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                MessageBox.Show(String.Format("Nie udało się zastosować algorytmu: {0} ,{1}", Environment.NewLine, ex.Message));
+                AlgorithmErrorMessage(ex.Message);
             }
         }
 
@@ -282,9 +287,10 @@ namespace GK_Project_3
                 KAverageImageSource = KAverageImageSource.FromByteArray(result);
                 KAverageText = "Algorytm K-średnich";
                 OnPropertyChanged(nameof(KAverageText));
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                AlgorithmErrorMessage(ex.Message);
             }
         }
 
@@ -296,10 +302,16 @@ namespace GK_Project_3
                 KPopularImageSource = KPopularImageSource.FromByteArray(result);
                 KPopularText = "Algorytm popularnościowy";
                 OnPropertyChanged(nameof(KPopularText));
-            }catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message);
             }
+            catch (Exception ex)
+            {
+                AlgorithmErrorMessage(ex.Message);
+            }
+        }
+
+        void AlgorithmErrorMessage(string message)
+        {
+            MessageBox.Show(String.Format("Wystąpił problem podczas algorytmu: {0} ,{1}", Environment.NewLine, message));
         }
     }
 }

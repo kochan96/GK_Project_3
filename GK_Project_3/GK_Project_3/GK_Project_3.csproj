@@ -58,8 +58,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helpers.cs" />
     <Compile Include="KAverage.cs" />
     <Compile Include="KPopular.cs" />
+    <Compile Include="PatriciaColorTree.cs" />
     <Compile Include="PropagateError.cs" />
     <Compile Include="RelayCommand.cs" />
     <Page Include="MainWindow.xaml">

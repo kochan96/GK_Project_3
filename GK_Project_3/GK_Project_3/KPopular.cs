@@ -12,6 +12,7 @@ namespace GK_Project_3
 
         public static byte[] GetDitheredBitmapKPopular(WriteableBitmap sourceBitmap,int k)
         {
+
             throw new NotImplementedException("Do zrobienia");
         }
     }
